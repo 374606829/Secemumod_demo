@@ -1,0 +1,39 @@
+# 环境配置（含敏感信息）
+.env
+.env.*
+!.env.example
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Java / Maven
+backend/target/
+*.class
+*.jar
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+*.egg-info/
+dist/
+*.egg
+
+# 存储与生成文件
+backend/storage/
+*.aimg1
+
+# 日志
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# 上传脚本
+upload_to_github.bat

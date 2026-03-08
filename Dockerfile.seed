@@ -1,0 +1,16 @@
+FROM python:3.11-slim
+WORKDIR /app
+
+# Install dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy demo files (schema, scripts)
+COPY scripts/ ./scripts/
+COPY backend/src/main/resources/db/schema.sql ./backend/src/main/resources/db/
+
+# Storage dir (will be mounted as volume)
+RUN mkdir -p /app/storage/mods
+
+WORKDIR /app
+ENTRYPOINT ["sh", "-c", "python scripts/wait-for-mysql.py && python scripts/seed.py --db-host ${DB_HOST:-mysql} --db-password ${DB_PASSWORD:-root} --storage-dir /app/storage/mods --schema-path /app/backend/src/main/resources/db/schema.sql"]
