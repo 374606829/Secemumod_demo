@@ -1,20 +1,18 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-最小 MVP 客户端：登录 → 鉴权 → 下载 .aimg1 → 内存解密 → 窗口显示图片（不落盘）
+Minimal MVP client: login -> auth -> download .aimg1 -> in-memory decrypt -> display image (never to disk).
 
-核心思想：加密资产经鉴权后下载，解密在内存中完成，明文仅用于展示，不写入磁盘。
+Usage:
+  python mvp-client/main.py --mod-id 1
 
-用法:
-  python demo/mvp-client/main.py --mod-id 1
+  # Custom backend URL
+  python mvp-client/main.py --mod-id 1 --base-url http://localhost:8080
 
-  # 自定义后端地址
-  python demo/mvp-client/main.py --mod-id 1 --base-url http://localhost:8080
+  # Custom username/password
+  python mvp-client/main.py --mod-id 1 --username player1 --password player123
 
-  # 指定用户名密码
-  python demo/mvp-client/main.py --mod-id 1 --username player1 --password player123
-
-依赖: pip install requests pycryptodome Pillow
+Dependencies: pip install requests pycryptodome Pillow
 """
 
 import argparse

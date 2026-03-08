@@ -2,5 +2,5 @@ requests>=2.28
 pycryptodome>=3.18
 Pillow>=10.0
 pymysql>=1.1
-cryptography>=41.0   # MySQL 8 caching_sha2_password 认证所需
+cryptography>=41.0   # Required for MySQL 8 caching_sha2_password auth
 bcrypt>=4.0

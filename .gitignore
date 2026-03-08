@@ -1,4 +1,4 @@
-# 环境配置（含敏感信息）
+# Environment (contains sensitive data)
 .env
 .env.*
 !.env.example
@@ -23,11 +23,11 @@ venv/
 dist/
 *.egg
 
-# 存储与生成文件
+# Storage and generated files
 backend/storage/
 *.aimg1
 
-# 日志
+# Logs
 *.log
 logs/
 
@@ -35,5 +35,6 @@ logs/
 .DS_Store
 Thumbs.db
 
-# 上传脚本
+# Upload/update scripts (exclude self)
 upload_to_github.bat
+update_to_github.bat

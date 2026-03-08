@@ -1,12 +1,24 @@
+<div align="center">
+
 # Secemumod — Encrypted Texture Asset Protection Demo
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![Spring Boot 3.2+](https://img.shields.io/badge/Spring%20Boot-3.2+-brightgreen)](https://spring.io/projects/spring-boot)
+[![Java 17](https://img.shields.io/badge/Java-17-orange)](https://openjdk.org/)
+[![Docker](https://img.shields.io/badge/docker-ready-blue)](https://www.docker.com/)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/374606829/Secemumod_demo/pulls)
+[![Star on GitHub](https://img.shields.io/github/stars/374606829/Secemumod_demo?style=social)](https://github.com/374606829/Secemumod_demo)
 
 [中文](README.md)
 
-## Purpose
+</div>
 
-**Secemumod** addresses the industry pain point of **unprotected texture assets** in open-source emulator ecosystems.
+---
 
-In open-source emulators, texture loading exhibits inconsistent state before and after: assets are encrypted before loading, but become plaintext once loaded into the game. Creators' texture assets can be freely extracted and redistributed without effective protection. Secemumod solves this with **auth + in-memory decryption without disk writes**: encrypted textures are decrypted and mounted only in authorized contexts, with plaintext **never written to disk**, protecting emulator game authors' texture assets.
+## Background
+
+Creators' texture MODs are often extracted and resold within 24 hours of release. Secemumod protects niche creations with enterprise-grade encryption — auth + in-memory decryption, never written to disk. This is not a toy demo; it's a deployable solution for real communities.
 
 ---
 
@@ -20,6 +32,26 @@ In open-source emulators, texture loading exhibits inconsistent state before and
 
 ---
 
+## Demo
+
+![Demo](./1.gif)
+
+---
+
+## One-Line Start
+
+```bash
+git clone https://github.com/374606829/Secemumod_demo.git
+cd Secemumod_demo
+docker compose up -d
+pip install -r requirements.txt
+python mvp-client/main.py --mod-id 1 --base-url http://localhost:8080
+```
+
+> Requires Docker. First build takes ~1–2 minutes. Configure [Docker registry mirror](https://docs.docker.com/registry/recipes/mirror/) if needed.
+
+---
+
 ## Use Cases
 
 - Texture MOD hosting for open-source emulators (PCSX2, Dolphin, RPCS3, etc.)
@@ -28,33 +60,32 @@ In open-source emulators, texture loading exhibits inconsistent state before and
 
 ---
 
-## Status
+## Tech Stack
 
-| Component | Status | Description |
-|-----------|--------|-------------|
-| **Backend** | ✅ Done | Spring Boot: login, batch-launch-secure, mod download |
-| **MVP Client** | ✅ Done | Python: login → auth → download → in-memory decrypt → display in window |
-| **Seed Script** | ✅ Done | Pre-seeds user, mod, encryption key, .aimg1 test image |
+| Layer | Tech |
+|-------|------|
+| Backend | Spring Boot 3.2, Java 17, MySQL 8, JWT |
+| Client | Python 3.8+, AES-256-GCM, Pillow |
+| Deploy | Docker, Docker Compose |
 
 ---
 
 ## Project Structure
 
 ```
-demo/
-├── backend/                 # Component 1: Backend
-│   ├── src/main/java/      # AuthController, ModController, MvpService
-│   ├── src/main/resources/
-│   │   ├── application.yml
-│   │   └── db/schema.sql
-│   └── storage/mods/        # .aimg1 file storage (created by seed)
+Secemumod_demo/
+├── backend/                 # Backend (Spring Boot)
+│   ├── Dockerfile
+│   └── src/main/
 ├── mvp-client/
-│   └── main.py              # Component 2: Client (can be packed as exe via pyinstaller)
+│   └── main.py              # Client (login → auth → decrypt → display)
 ├── scripts/
-│   └── seed.py              # Seed script
-├── requirements.txt        # Python dependencies
-├── .env.example            # Environment variable template
-└── README.md
+│   ├── seed.py
+│   └── wait-for-mysql.py
+├── docker-compose.yml
+├── Dockerfile.seed
+├── requirements.txt
+└── .env.example
 ```
 
 ---
@@ -64,7 +95,7 @@ demo/
 ```
 ┌─────────────┐         ┌──────────────────┐
 │   Backend   │◄═══════►│  MVP Client      │
-│ (Spring Boot)│         │   (Python)       │
+│ (Spring Boot)│         │   (Python)        │
 └──────┬──────┘         └────────┬─────────┘
        │                         │
   Auth + DEK              HTTP Auth/Download
@@ -75,80 +106,43 @@ demo/
 
 ---
 
-## Quick Start
+## Quick Start (Detailed)
 
-### Option 1: One-Click Deploy (Docker)
-
-**Prerequisites**: Docker & Docker Compose
+### Option 1: Docker
 
 ```bash
-cd demo
 docker compose up -d
-```
-
-Wait 1–2 minutes (first run builds images). Backend listens on `http://localhost:8080`. Then run the client:
-
-```bash
-pip install -r demo/requirements.txt
-python demo/mvp-client/main.py --mod-id 1 --base-url http://localhost:8080
+# Wait 1–2 minutes, then:
+pip install -r requirements.txt
+python mvp-client/main.py --mod-id 1 --base-url http://localhost:8080
 ```
 
 Stop: `docker compose down`
-
----
 
 ### Option 2: Local Run
 
 **Prerequisites**: Java 17+, Maven 3.6+, MySQL 8.0+, Python 3.8+
 
-### Step 1: Install Python Dependencies
-
 ```bash
-pip install -r demo/requirements.txt
-```
+# 1. Seed database
+python scripts/seed.py --db-password root
 
-### Step 2: Seed Database
+# 2. Start backend
+mvn -f backend/pom.xml spring-boot:run
 
-Creates `secemumod_demo` database, inserts test user, mod, encryption key, and generates .aimg1 test image:
-
-```bash
-python demo/scripts/seed.py --db-password root
-```
-
-The script prints the **Mod ID** (usually 1) — you'll need it for the next steps.
-
-### Step 3: Start Backend
-
-```bash
-mvn -f demo/backend/pom.xml spring-boot:run
-```
-
-Backend listens on `http://localhost:8080`.
-
-### Step 4: Run Client
-
-```bash
-python demo/mvp-client/main.py --mod-id 1
-```
-
-Replace `1` with the Mod ID from the seed script. A window will show the **decrypted image** — entirely in memory, never written to disk.
-
-### Optional Arguments
-
-```bash
-python demo/mvp-client/main.py --mod-id 1 --base-url http://localhost:8080
-python demo/mvp-client/main.py --mod-id 1 --username player1 --password player123
+# 3. Run client (use mod-id from seed output)
+python mvp-client/main.py --mod-id 1
 ```
 
 ---
 
 ## Flow
 
-1. **Login**: Client POSTs `/api/v1/auth/login`, receives JWT
-2. **Auth**: POST `/api/v1/mod/batch-launch-secure`, receives `encryptedDek`, `downloadUrl`
-3. **Download**: GET `downloadUrl`, load .aimg1 into memory (no disk write)
-4. **In-memory decrypt**: Base64 decode DEK → parse AIMG1 header → AES-256-GCM decrypt
-5. **Display**: Decode PNG and show in window; plaintext exists only in process memory
+1. **Login** → POST `/api/v1/auth/login`, receive JWT
+2. **Auth** → POST `/api/v1/mod/batch-launch-secure`, receive `encryptedDek`, `downloadUrl`
+3. **Download** → GET `downloadUrl`, load .aimg1 into memory (no disk write)
+4. **In-memory decrypt** → Base64 decode DEK → AES-256-GCM decrypt AIMG1
+5. **Display** → Decode PNG, show in window; plaintext only in process memory
 
 ---
 
@@ -171,13 +165,11 @@ python demo/mvp-client/main.py --mod-id 1 --username player1 --password player12
 
 See `.env.example`. Main variables: `DB_PASSWORD`, `JWT_SECRET`, `ENCRYPTION_MASTER_KEY`.
 
----
-
-## Pack as exe (Optional)
+### Pack as exe (Optional)
 
 ```bash
 pip install pyinstaller
-pyinstaller --onefile --name secemumod_client demo/mvp-client/main.py
+pyinstaller --onefile --name secemumod_client mvp-client/main.py
 ```
 
 ---
@@ -186,13 +178,36 @@ pyinstaller --onefile --name secemumod_client demo/mvp-client/main.py
 
 | Issue | Solution |
 |-------|----------|
-| `authorizedMods is empty` | Run seed script first; ensure mod is inserted with status=APPROVED |
-| MySQL connection failed | Ensure MySQL is running; `--db-password` matches local config |
-| Image decode failed | Ensure seed-generated .aimg1 path matches backend storage |
+| `authorizedMods is empty` | Run seed script first; ensure mod has status=APPROVED |
+| MySQL connection failed | Ensure MySQL is running; `--db-password` matches local |
+| Image decode failed | Ensure seed .aimg1 path matches backend storage |
 | Backend 401 | Check username/password match seed (default player1/player123) |
+
+---
+
+## Roadmap
+
+- [ ] Support more emulators (Dolphin, RPCS3)
+- [ ] Web management UI
+- [ ] Publish Rust security service as standalone library
+- [ ] Optional TPM integration
+
+---
+
+## Contributing
+
+Issues and PRs welcome! See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ---
 
 ## License
 
 MIT
+
+---
+
+<div align="center">
+
+**If this project helps you or you find it interesting, please give it a ⭐ Star so more creators can discover it!**
+
+</div>

@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-种子脚本：预置测试数据（用户、mod、加密密钥、.aimg1 文件）
+Seed script: pre-populate test data (user, mod, encryption key, .aimg1 file).
 
-用法:
-  python demo/scripts/seed.py [--db-password root]
+Usage:
+  python scripts/seed.py [--db-password root]
 
-依赖: pip install pymysql pycryptodome Pillow
+Dependencies: pip install pymysql pycryptodome Pillow bcrypt
 """
 
 import argparse
@@ -19,17 +19,17 @@ import sys
 DEMO_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEFAULT_STORAGE_DIR = os.path.join(DEMO_DIR, "backend", "storage", "mods")
 
-# 与 application.yml 中 mvp.encryption.master-key 默认值一致
+# Must match mvp.encryption.master-key default in application.yml
 DEFAULT_MASTER_KEY_B64 = "cGxlYXNlQ2hhbmdlTWVJbkpKaW9uQXVnVUtWYWx1ZQA="
 
-# 固定测试 DEK（32 bytes）
+# Fixed test DEK (32 bytes)
 TEST_DEK = b"DEMO_MVP_TEST_DEK_32BYTES_OK!!"[:32].ljust(32, b"\x00")
 
-# 测试用户
+# Test user
 TEST_USER = "player1"
 TEST_PASS = "player123"
 
-# 测试 Mod
+# Test mod
 TEST_MOD_TITLE = "MVP Demo Mod"
 TEST_AIMG1_FILENAME = "demo_test.png.aimg1"
 
@@ -263,8 +263,8 @@ def main():
     print(f"  AIMG1: {abs_path}")
     print()
     print("  Next steps:")
-    print("  1. Start backend:  mvn -f demo/backend/pom.xml spring-boot:run")
-    print(f"  2. Run client:     python demo/mvp-client/main.py --mod-id {mod_id}")
+    print("  1. Start backend:  mvn -f backend/pom.xml spring-boot:run")
+    print(f"  2. Run client:     python mvp-client/main.py --mod-id {mod_id}")
     print("=" * 60)
 
     return 0
